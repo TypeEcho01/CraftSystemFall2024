@@ -1,0 +1,13 @@
+<books>
+	<book>
+		<author>T.Authorperson</author>
+	</book>
+	
+	<book author="T.Authorperson">
+		
+	</book>
+	
+	<book>
+		
+	</book>
+</books>

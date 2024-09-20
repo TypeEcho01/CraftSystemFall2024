@@ -1,0 +1,28 @@
+<recipes>
+
+    <recipe title = "Chocolate Cake" description = "Makes me a fancy chocolate cake" yieldAmount = "1" yieldType = "cake" value="10.50">
+		<ingredient itemName = "Powdered Sugar Icing" amount = "1" amountType = "cup(s)">
+		</ingredient>
+				
+		<ingredient itemName = "Bananas" amount = "2" amountType = "banana">
+		</ingredient>
+				
+		<ingredient itemName = "Egg" amount = "2" amountType = "egg">
+		</ingredient>
+			   
+		<ingredient itemName = "Cacao Powder" amount = "2" amountType = "tbsp">
+		</ingredient>
+    </recipe>
+	
+	<recipe title = "Powdered Sugar Icing" description = "Icing for cakes and cookies" yieldAmount = "1" yieldType = "cup(s)" value="2.75">
+		<ingredient itemName = "Powdered Sugar" amount = "1" amountType = "cup(s)">
+		</ingredient>
+				
+		<ingredient itemName = "Vanilla Extract" amount = "0.5" amountType = "tsp">
+		</ingredient>
+				
+		<ingredient itemName = "Milk" amount = "2" amountType = "tbsp">
+		</ingredient>
+	</recipe>
+
+</recipes>
