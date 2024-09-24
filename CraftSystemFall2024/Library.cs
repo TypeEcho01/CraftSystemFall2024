@@ -95,78 +95,25 @@ namespace CraftSystemFall2024
             }
         }
 
-        public static string LoadItemData()
-        {
-            string[] items = File.ReadAllLines("../../../data/Items.txt");
-            string output = "";
-            foreach (string s in items)
-            {
-                output += s + Environment.NewLine;
-            }
-            return output;
-        }
+        //public static string LoadItemData()
+        //{
+        //    string[] items = File.ReadAllLines("../../../data/Items.txt");
+        //    string output = "";
+        //    foreach (string s in items)
+        //    {
+        //        output += s + Environment.NewLine;
+        //    }
+        //    return output;
+        //}
         
-        public static string LoadWelcomeInformation()
-        {
-            string path = "../../../data/welcome.txt";
-            if (File.Exists(path))
-            {
-                return File.ReadAllText(path);
-            }
-            return "File not found...";
-        }
-
-        public static List<Recipe> LoadRecipeData()
-        {
-            string fileName = "../../../data/Recipes.xml";
-            List<Recipe> Recipes = new List<Recipe>();
-            XmlDocument doc = new XmlDocument();
-            doc.Load(fileName);
-            XmlNode root = doc.DocumentElement;
-            XmlNodeList recipeList = root.SelectNodes("/recipes/recipe");
-            XmlNodeList ingredientsList;
-
-            foreach (XmlElement recipe in recipeList)
-            {
-                Recipe recipeToAdd = new Recipe();
-                recipeToAdd.RecipeName = recipe.GetAttribute("title");
-                recipeToAdd.RecipeDescription = recipe.GetAttribute("description");
-                string yieldAmount = recipe.GetAttribute("yieldAmount");
-                if (float.TryParse(yieldAmount, out float amount))
-                { recipeToAdd.RecipeAmount = amount; }
-
-                recipeToAdd.RecipeAmountType = recipe.GetAttribute("yieldType");
-                string recipevalue = recipe.GetAttribute("value");
-                if (float.TryParse(recipevalue, out float value))
-                { recipeToAdd.RecipeValue = value; }
-
-                ingredientsList = recipe.ChildNodes; //for ingredients
-
-                foreach (XmlElement i in ingredientsList)
-                {
-                    string ingredientName = i.GetAttribute("itemName");
-                    string ingredientAmountString = i.GetAttribute("amount");
-                    float ingredientAmount = 0;
-                    if (float.TryParse(ingredientAmountString, out float e))
-                    { ingredientAmount = e; }
-                    string ingredientAmountType = i.GetAttribute("amountType");
-                    string tempIngredientValue = i.GetAttribute("value");
-                    float ingredientValue = 0;
-                    if (float.TryParse(tempIngredientValue, out float ingValue))
-                    { ingredientValue = ingValue; }
-
-                    recipeToAdd.RecipeRequirements.Add(
-                    new Item()
-                        { 
-                            ItemName = ingredientName,
-                            ItemAmount = ingredientAmount,
-                            ItemValue = ingredientValue
-                        }
-                    );
-                }
-                Recipes.Add(recipeToAdd);
-            }
-            return Recipes;
-        }
+        //public static string LoadWelcomeInformation()
+        //{
+        //    string path = "../../../data/welcome.txt";
+        //    if (File.Exists(path))
+        //    {
+        //        return File.ReadAllText(path);
+        //    }
+        //    return "File not found...";
+        //}
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using static System.Console;
 using static CraftSystemFall2024.Library;
 
@@ -11,8 +12,8 @@ namespace CraftSystemFall2024
     {
         private string applicationName = "Super Awesome Crafting System";
         private List<Recipe> recipes = new List<Recipe>();
-        Person Player = new Person("Player");
-        Person Vendor = new Person();
+        Player Player = new Player("Player");
+        Vendor Vendor = new Vendor(VendorNames.Bob.ToString());
         
         public void Start()
         {
@@ -46,7 +47,7 @@ namespace CraftSystemFall2024
 
         private void SetPlayerName()
         {
-                Player.ChangeName(GetInput("Enter your name:"));
+                Player.ChangeName(GetInput("Enter your name: "));
         }
 
         private string ShowRecipes()
@@ -62,7 +63,16 @@ namespace CraftSystemFall2024
 
         private void Menu()
         {
-            string[] menuChoices = {"1) Craft", "2) Show Inventory", "3) Show Recipies", "4) Change Name", "5) View Credits", "0) Quit Game" };
+            string[] menuChoices = 
+                {
+                "1) Craft", 
+                "2) Show Inventory", 
+                "3) Show Recipies", 
+                "4) Change Name", 
+                "5) View Credits", 
+                $"6) Enter {Vendor.PersonName}'s Shop",
+                "0) Quit Game"
+            };
             ClearScreen();
             Print("Main Menu");
             Print(Player.ViewSummary());
@@ -90,6 +100,9 @@ namespace CraftSystemFall2024
                     break;
                 case 5:
                     Print(ShowCredits());
+                    break;
+                case 6:
+                    EnterShop(Vendor);
                     break;
                 default:
                     Print("Please only enter one of the choices listed.");
@@ -123,6 +136,130 @@ namespace CraftSystemFall2024
 
             Player.AddItemToInventorybyName(recipe.RecipeName);
             Print(recipe.RecipeName, "has been crafted!");
+        }
+
+        private void EnterShop(Vendor vendor)
+        {
+            while (true)
+            {
+                ClearScreen();
+                Print($"{vendor.PersonName}'s Shop");
+                Print(Player.ViewSummary());
+                LineBreak();
+                Print(Vendor.Greet());
+                Print(Vendor.ShowInventory());
+                LineBreak();
+                string input = GetInput("Enter the name of the item you'd like to buy, or enter nothing to exit: ");
+                if (input == "")
+                    break;
+                int itemIndex = vendor.FindInventoryItemIndexByName(input);
+                if (itemIndex == -1)
+                {
+                    Print(vendor.NoItem(input));
+                    Print("Enter any key to continue.");
+                    ReadKey();
+                    continue;
+                }
+
+                Item item = vendor.Inventory[itemIndex];
+                double cost = item.ItemValue;
+
+                if (cost > Player.Currency)
+                {
+                    Print(vendor.NoCurrency(item, Player.Currency));
+                    Print("Enter any key to continue.");
+                    ReadKey();
+                    continue;
+                }
+
+                Player.Currency -= cost;
+                vendor.Currency += cost;
+                vendor.Inventory[itemIndex].ItemAmount--;
+                if (vendor.Inventory[itemIndex].ItemAmount <= 0)
+                    vendor.RemoveItemFromInventoryByIndex(itemIndex);
+
+                itemIndex = Player.FindInventoryItemIndexByName(item.ItemName);
+                if (itemIndex != -1)
+                {
+                    Player.Inventory[itemIndex].ItemAmount++;
+                    Print("You have bought another", item.ItemName);
+                    Print(vendor.Thank());
+                    Print("Enter any key to continue.");
+                    ReadKey();
+                }
+                else
+                {
+                    Player.Inventory.Add(new Item()
+                    {
+                        ItemName = item.ItemName,
+                        ItemValue = item.ItemValue,
+                        ItemAmount = 1
+                    });
+                    Print("You have bought a", item.ItemName);
+                    Print(vendor.Thank());
+                    Print("Enter any key to continue.");
+                    ReadKey();
+                }
+            }
+            Print(Vendor.Farewell());
+        }
+
+        private void Trade(Vendor vendor)
+        {
+
+        }
+
+        public static List<Recipe> LoadRecipeData()
+        {
+            string fileName = "../../../data/Recipes.xml";
+            List<Recipe> Recipes = new List<Recipe>();
+            XmlDocument doc = new XmlDocument();
+            doc.Load(fileName);
+            XmlNode root = doc.DocumentElement;
+            XmlNodeList recipeList = root.SelectNodes("/recipes/recipe");
+            XmlNodeList ingredientsList;
+
+            foreach (XmlElement recipe in recipeList)
+            {
+                Recipe recipeToAdd = new Recipe();
+                recipeToAdd.RecipeName = recipe.GetAttribute("title");
+                recipeToAdd.RecipeDescription = recipe.GetAttribute("description");
+                string yieldAmount = recipe.GetAttribute("yieldAmount");
+                if (float.TryParse(yieldAmount, out float amount))
+                { recipeToAdd.RecipeAmount = amount; }
+
+                recipeToAdd.RecipeAmountType = recipe.GetAttribute("yieldType");
+                string recipevalue = recipe.GetAttribute("value");
+                if (float.TryParse(recipevalue, out float value))
+                { recipeToAdd.RecipeValue = value; }
+
+                ingredientsList = recipe.ChildNodes; //for ingredients
+
+                foreach (XmlElement i in ingredientsList)
+                {
+                    string ingredientName = i.GetAttribute("itemName");
+                    string ingredientAmountString = i.GetAttribute("amount");
+                    float ingredientAmount = 0;
+                    if (float.TryParse(ingredientAmountString, out float e))
+                    { ingredientAmount = e; }
+                    string ingredientAmountType = i.GetAttribute("amountType");
+                    string tempIngredientValue = i.GetAttribute("value");
+                    float ingredientValue = 0;
+                    if (float.TryParse(tempIngredientValue, out float ingValue))
+                    { ingredientValue = ingValue; }
+
+                    recipeToAdd.RecipeRequirements.Add(
+                    new Item()
+                    {
+                        ItemName = ingredientName,
+                        ItemAmount = ingredientAmount,
+                        ItemValue = ingredientValue
+                    }
+                    );
+                }
+                Recipes.Add(recipeToAdd);
+            }
+            return Recipes;
         }
     }
 }
