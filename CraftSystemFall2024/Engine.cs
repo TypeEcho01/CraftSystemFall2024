@@ -155,9 +155,7 @@ namespace CraftSystemFall2024
                 int itemIndex = vendor.FindInventoryItemIndexByName(input);
                 if (itemIndex == -1)
                 {
-                    Print(vendor.NoItem(input));
-                    Print("Enter any key to continue.");
-                    ReadKey();
+                    VendorItemNotFound(vendor, input);
                     continue;
                 }
 
@@ -166,9 +164,7 @@ namespace CraftSystemFall2024
 
                 if (cost > Player.Currency)
                 {
-                    Print(vendor.NoCurrency(item, Player.Currency));
-                    Print("Enter any key to continue.");
-                    ReadKey();
+                    VendorItemTooExpensive(vendor, item);
                     continue;
                 }
 
@@ -181,32 +177,51 @@ namespace CraftSystemFall2024
                 itemIndex = Player.FindInventoryItemIndexByName(item.ItemName);
                 if (itemIndex != -1)
                 {
-                    Player.Inventory[itemIndex].ItemAmount++;
-                    Print("You have bought another", item.ItemName);
-                    Print(vendor.Thank());
-                    Print("Enter any key to continue.");
-                    ReadKey();
+                    VendorBuyItemAgain(vendor, itemIndex);
                 }
                 else
                 {
-                    Player.Inventory.Add(new Item()
-                    {
-                        ItemName = item.ItemName,
-                        ItemValue = item.ItemValue,
-                        ItemAmount = 1
-                    });
-                    Print("You have bought a", item.ItemName);
-                    Print(vendor.Thank());
-                    Print("Enter any key to continue.");
-                    ReadKey();
+                    VendorBuyNewItem(vendor, item);
                 }
             }
             Print(Vendor.Farewell());
         }
 
-        private void Trade(Vendor vendor)
+        private void VendorItemNotFound(Vendor vendor, string itemName)
         {
+            Print(vendor.NoItem(itemName));
+            Print("Enter any key to continue.");
+            ReadKey();
+        }
 
+        private void VendorItemTooExpensive(Vendor vendor, Item item)
+        {
+            Print(vendor.NoCurrency(item, Player.Currency));
+            Print("Enter any key to continue.");
+            ReadKey();
+        }
+
+        private void VendorBuyItemAgain(Vendor vendor, int itemIndex)
+        {
+            Player.Inventory[itemIndex].ItemAmount++;
+            Print("You have bought another", Player.Inventory[itemIndex].ItemName);
+            Print(vendor.Thank());
+            Print("Enter any key to continue.");
+            ReadKey();
+        }
+
+        private void VendorBuyNewItem(Vendor vendor, Item item)
+        {
+            Player.Inventory.Add(new Item()
+            {
+                ItemName = item.ItemName,
+                ItemValue = item.ItemValue,
+                ItemAmount = 1
+            });
+            Print("You have bought a", item.ItemName);
+            Print(vendor.Thank());
+            Print("Enter any key to continue.");
+            ReadKey();
         }
 
         public static List<Recipe> LoadRecipeData()
